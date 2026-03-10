@@ -418,6 +418,24 @@ def fetch_articles(lookback_hours: int = 24) -> list[dict]:
 FILTER_PROMPT = """\
 You are a senior growth equity analyst curating a daily investment brief for a VC/growth equity team.
 
+INVESTMENT CONTEXT:
+We are a growth equity investment team at Eurazeo Growth. Our focus is exclusively on:
+• Funding rounds from Seed to pre-IPO in tech companies (SaaS, AI, deeptech, fintech, digital health, cybersecurity, climate tech)
+• M&A deals involving tech companies, especially significant acquisitions or exits
+• New fund announcements from notable VC or growth equity firms
+• Major market moves relevant to private tech investors
+
+DO NOT include:
+• Public market noise: stock price movements, earnings reports, analyst price targets, market cap commentary
+• Macroeconomic news (interest rates, inflation, GDP) with no direct tech investing angle
+• News from non-relevant geographies (Central Asia, Southeast Asia, Latin America unless the deal is exceptionally large)
+• Consumer lifestyle, politics, sports, or non-tech industries
+• Any story that would not be directly actionable or relevant to a private equity investor evaluating or monitoring tech companies
+
+NOTE: Strategic moves by major tech companies (Nvidia, OpenAI, Google, Microsoft, Meta, Anthropic, Apple, etc.) ARE relevant and should be included when they involve: major contracts or compute deals, acquisitions, equity investments in startups, partnerships that shift the competitive landscape, or platform launches with market-defining implications. These are NOT "public market noise".
+
+Only include news from Europe, the US, and Israel unless a deal is exceptionally large and globally relevant.
+
 Below are articles (0-indexed) fetched from VC/tech news sources in the past 24 hours.
 
 ──────────────────────────────────────────
@@ -435,15 +453,17 @@ GEOGRAPHIC FOCUS — apply this priority strictly:
 • TERTIARY: Israel — include only if clearly noteworthy (strong AI, cyber, or deep tech angle)
 
 INCLUDE stories that fall into at least one of these categories:
-• Funding rounds (€5M+ / $5.5M+) at Series A or beyond
+• Funding rounds at Series A or beyond, with no strict minimum size — include if the company or sector is interesting for a growth equity investor
+• European funding rounds at any Series A+ stage, even in niche deep tech or materials sectors
 • M&A, acquisitions, exits, IPOs involving tech companies
-• Notable product launches or significant market moves by growth-stage tech companies
+• Major contracts, compute deals, partnerships, or equity investments by large tech companies (Nvidia, OpenAI, Google, Microsoft, Meta, Anthropic, Apple, etc.) that signal market direction
+• Notable product or platform launches by growth-stage or large tech companies that shift competitive dynamics
 • VC / growth equity fund news: new funds raised, LP activity, notable GP moves, fund strategies
 • Market thesis or investment analysis pieces from reputable VC funds or analysts
   (e.g. "AI is bigger than SaaS", sector deep-dives, paradigm-shift arguments with investment implications)
 
-EXCLUDE: seed rounds under €5M/$5.5M, consumer lifestyle, politics, sports, non-tech companies,
-general macro news unrelated to tech investing, outage/incident reports.
+EXCLUDE: very small seed rounds under €3M/$3.5M with no strategic angle, consumer lifestyle, politics, sports,
+non-tech companies, stock price/earnings/market cap commentary, outage/incident reports.
 For US/Israel stories: apply a higher bar — only include if genuinely important for a European growth equity investor.
 
 For every INCLUDED article output EXACTLY these fields:
@@ -605,7 +625,7 @@ def build_html(digest: dict[str, list[dict]], date_str: str) -> str:
     # Only render sectors that have at least one story
     sections_html = ""
     for sector in SECTORS:
-        stories = digest.get(sector, [])[:5]  # cap at 5 per sector
+        stories = digest.get(sector, [])
         if not stories:
             continue
 
@@ -691,12 +711,12 @@ def build_html(digest: dict[str, list[dict]], date_str: str) -> str:
 </table>
 
 <!-- Footer -->
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
   <tr>
-    <td style="height:2px;background:#00d4aa;font-size:0;line-height:0;">&nbsp;</td>
+    <td style="height:3px;background:#00d4aa;font-size:0;line-height:0;">&nbsp;</td>
   </tr>
   <tr>
-    <td style="height:8px;background:#0a1628;font-size:0;line-height:0;">&nbsp;</td>
+    <td style="height:24px;background:#0a1628;font-size:0;line-height:0;">&nbsp;</td>
   </tr>
 </table>
 
