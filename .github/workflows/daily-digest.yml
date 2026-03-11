@@ -2,9 +2,9 @@ name: Daily Market Intel News
 
 on:
   schedule:
-    # 9:00 AM Europe/Paris in summer (CEST = UTC+2)
-    # 8:00 AM Europe/Paris in winter (CET  = UTC+1) — 1 hour early due to DST
-    - cron: '0 7 * * *'
+    # 9:00 AM Europe/Paris in winter (CET  = UTC+1) → 08:00 UTC  ✓
+    # 10:00 AM Europe/Paris in summer (CEST = UTC+2) → 08:00 UTC (1 h late, acceptable)
+    - cron: '0 8 * * *'
   workflow_dispatch:  # allow manual trigger from GitHub UI
 
 jobs:
