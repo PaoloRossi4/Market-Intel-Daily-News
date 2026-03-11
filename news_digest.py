@@ -416,115 +416,109 @@ def fetch_articles(lookback_hours: int = 24) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 FILTER_PROMPT = """\
-You are a senior growth equity analyst curating a daily investment brief for a VC/growth equity team.
+You are a senior growth equity analyst curating a daily investment brief for the Eurazeo Growth team.
 
-INVESTMENT CONTEXT:
-We are a growth equity investment team at Eurazeo Growth. Our focus is exclusively on:
-• Funding rounds from Seed to pre-IPO in tech companies (SaaS, AI, deeptech, fintech, digital health, cybersecurity, climate tech)
-• M&A deals involving tech companies, especially significant acquisitions or exits
-• New fund announcements from notable VC or growth equity firms
-• Major market moves relevant to private tech investors
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRIMARY PURPOSE — what this newsletter is for
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-DO NOT include:
-• Public market noise: stock price movements, earnings reports, analyst price targets, market cap commentary
-• Macroeconomic news (interest rates, inflation, GDP) with no direct tech investing angle
-• News from non-relevant geographies (Central Asia, Southeast Asia, Latin America unless the deal is exceptionally large)
-• Consumer lifestyle, politics, sports, or non-tech industries
-• Any story that would not be directly actionable or relevant to a private equity investor evaluating or monitoring tech companies
+1. FUNDING ROUNDS (core content — be comprehensive)
+   Report all noteworthy funding rounds. Do NOT cap the number of rounds included.
+   • Europe: include from Seed upward if the company or sector is interesting. Err on the side of inclusion.
+   • US: include rounds backed by top-tier VC/growth investors (Sequoia, a16z, Accel, General Catalyst,
+     Lightspeed, Tiger, etc.) or rounds in AI, cybersecurity, fintech, deeptech at any meaningful size.
+   • Israel: include strong AI, cyber, or deep tech rounds.
+   • Do NOT apply a hard minimum size — a €2M seed in a genuinely novel European deep tech company
+     is more relevant than a $10M US round in a commodity SaaS.
 
-NOTE: Strategic moves by major tech companies (Nvidia, OpenAI, Google, Microsoft, Meta, Anthropic, Apple, etc.) ARE relevant and should be included when they involve: major contracts or compute deals, acquisitions, equity investments in startups, partnerships that shift the competitive landscape, or platform launches with market-defining implications. These are NOT "public market noise".
+2. M&A (include if significant)
+   Acquisitions, exits, IPOs, and secondary transactions involving tech companies in our sectors.
+   Include cross-border deals and exits by known VC-backed companies.
 
-Only include news from Europe, the US, and Israel unless a deal is exceptionally large and globally relevant.
+3. GENERAL TECH NEWS (very selective — high bar)
+   Only include if the story is a major, landscape-changing event:
+   • A market-defining product launch by a sector leader (e.g. a new frontier AI model, a major
+     platform shift, a new chip architecture)
+   • A regulatory change with direct, immediate impact on the whole sector
+   • A major strategic partnership or compute deal that reshapes competitive dynamics
+   Do NOT include: opinion pieces, incremental product updates, minor partnerships, earnings commentary,
+   analyst notes, company blog posts, or anything that would be forgotten in a week.
 
-ALREADY REPORTED — stories sent to subscribers in the last 7 days:
-──────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STRICT RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• GEOGRAPHY: Europe and Israel are primary. US stories are secondary — apply a higher bar.
+  Exclude all other geographies unless the deal is exceptionally large and globally relevant.
+• NO FORCING: It is perfectly fine if some sectors have zero stories on a given day.
+  Never include a story just to fill a sector. Quality and relevance always over quantity.
+• NO DUPLICATES ACROSS DAYS: See the "Already Reported" section below — strictly exclude
+  any article covering the same event already sent, regardless of source or wording.
+• CROSS-SOURCE SIGNAL: If a story appears across 3–4+ sources in today's batch, treat that
+  as a strong signal of relevance and include it (picking the best-sourced article index).
+• EXCLUDE ALWAYS: stock price/earnings/market cap commentary, macroeconomic news with no
+  direct tech investing angle, consumer lifestyle, politics, sports, non-tech industries,
+  outage/incident reports, opinion pieces without a concrete investment signal.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ALREADY REPORTED — last 7 days (DO NOT repeat)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {seen_block}
-──────────────────────────────────────────
-Do NOT include any article that covers the same underlying event as a story above,
-even if it comes from a different source or uses different wording.
-"Same event" means: same company + same deal/launch/announcement (e.g. the same funding
-round reported by FT on Monday and PitchBook on Wednesday = exclude the second one).
-Only include a follow-up if it is a genuinely NEW development for that company
-(e.g. a product launch after a fundraise, a second close, regulatory approval).
+Exclude any article covering the same company + same event as above, even if worded differently
+or from a different source. Only include a follow-up if it is a genuinely new development
+(e.g. a second close, a product launch after a fundraise, regulatory approval after an IPO filing).
 
-Below are articles (0-indexed) fetched from VC/tech news sources in the past 24 hours.
-
-──────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODAY'S ARTICLES (0-indexed)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {articles_block}
-──────────────────────────────────────────
-
-GEOGRAPHIC FOCUS — apply this priority strictly:
-• PRIMARY: European tech companies and ecosystems — always include if relevant
-• SECONDARY: US stories — include only if they fall into one of these specific cases:
-  - Funding rounds or M&A involving major AI, LLM, cybersecurity, or big tech companies
-    (e.g. OpenAI, Anthropic, Mistral, Google DeepMind, a leading cybersecurity player)
-  - Launch of a product or model that is clearly disruptive and market-defining
-  - VC/market thesis pieces with direct relevance to a European growth equity investor
-  Do NOT include routine US funding rounds for companies a European investor would not track.
-• TERTIARY: Israel — include only if clearly noteworthy (strong AI, cyber, or deep tech angle)
-
-INCLUDE stories that fall into at least one of these categories:
-• Funding rounds at Series A or beyond, with no strict minimum size — include if the company or sector is interesting for a growth equity investor
-• European funding rounds at any Series A+ stage, even in niche deep tech or materials sectors
-• M&A, acquisitions, exits, IPOs involving tech companies
-• Major contracts, compute deals, partnerships, or equity investments by large tech companies (Nvidia, OpenAI, Google, Microsoft, Meta, Anthropic, Apple, etc.) that signal market direction
-• Notable product or platform launches by growth-stage or large tech companies that shift competitive dynamics
-• VC / growth equity fund news: new funds raised, LP activity, notable GP moves, fund strategies
-• Market thesis or investment analysis pieces from reputable VC funds or analysts
-  (e.g. "AI is bigger than SaaS", sector deep-dives, paradigm-shift arguments with investment implications)
-
-EXCLUDE: very small seed rounds under €3M/$3.5M with no strategic angle, consumer lifestyle, politics, sports,
-non-tech companies, stock price/earnings/market cap commentary, outage/incident reports.
-For US/Israel stories: apply a higher bar — only include if genuinely important for a European growth equity investor.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 For every INCLUDED article output EXACTLY these fields:
-1. "company_name": the primary company or fund name mentioned in the story (e.g. "Stripe", "Acme", "NFX")
-2. "headline": a 5–7 word headline in the format "Company/Fund X did/argues Y"
-   (e.g. "Stripe launches new B2B payments product", "Acme raises €20M led by Sequoia",
-   "NFX argues AI dwarfs SaaS opportunity")
-3. "investor_relevance": exactly 2 sentences explaining why this matters for a growth equity investor.
-   Be specific — mention round size, valuation, strategic angle, or market signal.
-4. "sector": classify into exactly one of these sectors using the definitions below.
-   IMPORTANT: your classification is always the final answer. Use your own knowledge of what
-   the company actually does — do not rely solely on what the article says. A security-sounding
-   article about a deep tech company should still be classified as Deep Tech. Classify by the
-   company's core business, not the topic of the specific news item. An internal reference
-   database may be checked after the fact, but your judgment takes priority.
-   • Climate Solutions: cleantech, renewable energy software, carbon tracking, ESG data platforms,
+1. "company_name": the primary company or fund name (e.g. "Stripe", "Mistral", "Sequoia")
+2. "headline": a 5–7 word headline in the format "Company X did/announced Y"
+   (e.g. "Mistral raises €600M Series B", "Wiz acquires Dazz for $450M",
+   "Anthropic launches Claude 4 with agentic reasoning")
+3. "investor_relevance": exactly 2 sentences. Be specific — mention round size, valuation,
+   lead investor, strategic angle, or market signal. No vague generalities.
+4. "sector": classify into exactly one sector using the definitions below.
+   Use your own knowledge of what the company does — not just what the article says.
+   Classify by core business, not by the topic of this specific news item.
+   • Climate Solutions: cleantech, renewable energy software, carbon tracking, ESG data,
      energy transition infrastructure, smart grid, sustainability analytics
-   • Cybersecurity: network security, endpoint protection, identity & access management, threat
-     detection, AI security testing, SOC automation, zero trust, compliance software
-   • Data & AI Infrastructure: AI/ML platforms, data pipelines, vector databases, cloud infrastructure,
-     LLM tooling, AI agents infrastructure, observability, data warehousing
-   • Deep Tech: frontier AI research, robotics, physical AI, world models, semiconductor IP, quantum
-     computing, photonics, advanced materials, computer vision at hardware level, advanced
-     manufacturing, biotech, autonomous vehicles
+   • Cybersecurity: network security, endpoint protection, identity & access management,
+     threat detection, AI security testing, SOC automation, zero trust, compliance software
+   • Data & AI Infrastructure: AI/ML platforms, data pipelines, vector databases, cloud
+     infrastructure, LLM tooling, AI agents infrastructure, observability, data warehousing
+   • Deep Tech: frontier AI research, robotics, physical AI, world models, semiconductor IP,
+     quantum computing, photonics, advanced materials, biotech, autonomous vehicles
    • DevOps & DevTools: CI/CD, developer productivity, code generation, testing automation,
      API management, platform engineering, software supply chain
-   • Digital Health: healthcare SaaS, clinical AI, remote patient monitoring, mental health tech,
-     medical device software, pharma tech, health data platforms
-   • Fintech & Insurtech: payments, banking infrastructure, lending, wealth management, insurance
-     tech, RegTech, embedded finance, crypto infrastructure
+   • Digital Health: healthcare SaaS, clinical AI, remote patient monitoring, mental health
+     tech, medical device software, pharma tech, health data platforms
+   • Fintech & Insurtech: payments, banking infrastructure, lending, wealth management,
+     insurance tech, RegTech, embedded finance, crypto infrastructure
    • Horizontal SW: business process automation, ERP, CRM, HR tech, legal tech, procurement
      software, collaboration tools — applicable across all industries
-   • Internet: consumer platforms, marketplaces, e-commerce enablement, creator economy, AdTech,
-     social platforms, gaming
-   • Vertical SW: industry-specific SaaS — construction tech, agritech, proptech, retail tech,
-     logistics software, manufacturing software, education tech, legal SaaS
-   • Others: anything that does not clearly fit the above (e.g. VC fund news, macro theses)
-5. "source_name": the publication name (e.g. "TechCrunch", "PitchBook", "Sifted")
+   • Internet: consumer platforms, marketplaces, e-commerce enablement, creator economy,
+     AdTech, social platforms, gaming
+   • Vertical SW: industry-specific SaaS — construction tech, agritech, proptech, retail
+     tech, logistics software, manufacturing software, education tech
+   • Others: VC fund news, LP activity, macro investment theses, anything that does not
+     clearly fit the above
+5. "source_name": the publication name (e.g. "TechCrunch", "Sifted", "PitchBook")
 6. "source_url": the article URL
 
 Return ONLY a valid JSON array — no markdown fences, no extra text:
 [
   {{
     "index": <int>,
-    "company_name": "<primary company name>",
-    "sector": "<sector name>",
+    "company_name": "<name>",
+    "sector": "<sector>",
     "headline": "<5-7 word headline>",
     "investor_relevance": "<Sentence one. Sentence two.>",
-    "source_name": "<publication name>",
-    "source_url": "<article URL>"
+    "source_name": "<publication>",
+    "source_url": "<URL>"
   }}
 ]
 
