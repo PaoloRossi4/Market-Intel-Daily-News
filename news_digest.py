@@ -781,6 +781,15 @@ def run_digest() -> None:
         digest = filter_and_rank(articles)
         digest = deduplicate(digest)
         html = build_html(digest, date_str)
+
+        # Wait until exactly SEND_TIME before delivering
+        send_h, send_m = map(int, SEND_TIME.split(":"))
+        target = datetime.now().replace(hour=send_h, minute=send_m, second=0, microsecond=0)
+        wait_secs = (target - datetime.now()).total_seconds()
+        if wait_secs > 0:
+            log.info("Digest ready — holding %.0f s until %s to send …", wait_secs, SEND_TIME)
+            time.sleep(wait_secs)
+
         send_email(html, date_str)
         log.info("=== Digest completed successfully ===")
     except Exception:
