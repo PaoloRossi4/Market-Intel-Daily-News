@@ -158,7 +158,7 @@ COMPANY_TAXONOMY: dict[str, str] = load_taxonomy()
 # ---------------------------------------------------------------------------
 
 SEEN_CACHE_PATH = Path(__file__).parent / "seen_stories.json"
-_DEDUP_TTL_HOURS = 48  # stories seen within this window are considered duplicates
+_DEDUP_TTL_HOURS = 168  # 7 days — prevents same story re-appearing across the week
 _DEDUP_SIMILARITY_THRESHOLD = 90  # rapidfuzz score to consider two titles the same story
 
 
@@ -436,6 +436,17 @@ NOTE: Strategic moves by major tech companies (Nvidia, OpenAI, Google, Microsoft
 
 Only include news from Europe, the US, and Israel unless a deal is exceptionally large and globally relevant.
 
+ALREADY REPORTED — stories sent to subscribers in the last 7 days:
+──────────────────────────────────────────
+{seen_block}
+──────────────────────────────────────────
+Do NOT include any article that covers the same underlying event as a story above,
+even if it comes from a different source or uses different wording.
+"Same event" means: same company + same deal/launch/announcement (e.g. the same funding
+round reported by FT on Monday and PitchBook on Wednesday = exclude the second one).
+Only include a follow-up if it is a genuinely NEW development for that company
+(e.g. a product launch after a fundraise, a second close, regulatory approval).
+
 Below are articles (0-indexed) fetched from VC/tech news sources in the past 24 hours.
 
 ──────────────────────────────────────────
@@ -521,7 +532,7 @@ If no articles qualify, return an empty array: []
 """
 
 
-def filter_and_rank(articles: list[dict]) -> dict[str, list[dict]]:
+def filter_and_rank(articles: list[dict], seen_headlines: list[str] | None = None) -> dict[str, list[dict]]:
     """Ask Claude to filter, summarise, and categorise the article list."""
     empty_result: dict[str, list[dict]] = {s: [] for s in SECTORS}
 
@@ -544,7 +555,13 @@ def filter_and_rank(articles: list[dict]) -> dict[str, list[dict]]:
             f"URL: {a['link']}\n\n"
         )
 
-    prompt = FILTER_PROMPT.format(articles_block=articles_block)
+    if seen_headlines:
+        seen_block = "\n".join(f"• {h}" for h in seen_headlines)
+        log.info("Passing %d recently seen headlines to Claude for semantic dedup.", len(seen_headlines))
+    else:
+        seen_block = "(none — this is the first digest or no recent history)"
+
+    prompt = FILTER_PROMPT.format(articles_block=articles_block, seen_block=seen_block)
 
     log.info("Calling Claude (%s) to filter %d articles …", ANTHROPIC_MODEL, len(articles))
     response = client.messages.create(
@@ -778,7 +795,10 @@ def run_digest() -> None:
     date_str = datetime.now().strftime("%B %d, %Y")
     try:
         articles = fetch_articles()
-        digest = filter_and_rank(articles)
+        # Load recent headlines so Claude can skip semantic duplicates from past 7 days
+        recent_cache = _load_seen_cache()
+        seen_headlines = list(recent_cache.keys())
+        digest = filter_and_rank(articles, seen_headlines=seen_headlines)
         digest = deduplicate(digest)
         html = build_html(digest, date_str)
 
