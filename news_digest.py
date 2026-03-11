@@ -57,6 +57,7 @@ RSS_FEEDS: dict[str, str] = {
     "EU-Startups": "https://www.eu-startups.com/feed/",
     "Tech.eu": "https://tech.eu/feed/",
     "Tech Funding News": "https://techfundingnews.com/feed/",
+    "Pulse 2.0": "https://pulse2.com/venture-capital/feed/",
 }
 
 ANTHROPIC_MODEL = "claude-sonnet-4-6"
