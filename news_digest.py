@@ -459,6 +459,18 @@ STRICT RULES
 
 • GEOGRAPHY: Europe and Israel are primary. US stories are secondary — apply a higher bar.
   Exclude all other geographies unless the deal is exceptionally large and globally relevant.
+• FRESHNESS — this is critical: always assess whether the UNDERLYING EVENT is genuinely new,
+  not just whether the article was published today. News sources frequently publish delayed
+  coverage, recap articles, or "deal closes" weeks after the original announcement.
+  Ask yourself: "Was this event (the fundraise, acquisition, launch) already widely known
+  before the last 48–72 hours?" If yes, exclude it — the team will already know.
+  Examples of what to EXCLUDE on freshness grounds:
+    - "Google completes acquisition of Wiz" if the deal was announced months ago
+    - "Company X closes $50M round" if the announcement was made 2+ weeks ago
+    - Any article that is clearly a follow-up recap of an event the market already digested
+  Use your own training knowledge to assess whether an event predates the last 48–72 hours.
+  When in doubt and the article gives no clear indication of when the event actually happened,
+  err on the side of exclusion.
 • NO FORCING: It is perfectly fine if some sectors have zero stories on a given day.
   Never include a story just to fill a sector. Quality and relevance always over quantity.
 • NO DUPLICATES ACROSS DAYS: See the "Already Reported" section below — strictly exclude
