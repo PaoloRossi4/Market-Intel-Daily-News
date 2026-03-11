@@ -430,11 +430,11 @@ PRIMARY PURPOSE — what this newsletter is for
        - A major tech corporation participates as investor (Google, Microsoft, Nvidia, Apple, Meta,
          Amazon, Salesforce, SAP, or similar large strategic investor)
        - A European tech investor participates (e.g. Index Ventures, Balderton, Northzone, HV Capital,
-         Eurazeo, Partech, Idinvest, Breega, Notion Capital, Atomico, Creandum, or any other
-         fund headquartered in Europe)
+         Eurazeo, Partech, Idinvest, Breega, Notion Capital, Atomico, Creandum, EQT, Verdane,
+         Maind Capital, or any other fund headquartered in Europe)
        - The company was founded by European founders (check founder names/backgrounds if mentioned)
-       - The round is exceptionally large and in a strategically important sector (e.g. >$200M in AI,
-         cybersecurity, or deeptech with clear market-defining implications)
+       - The round is $50M or above in a relevant sector (AI, cybersecurity, fintech, deeptech,
+         digital health, vertical/horizontal SaaS)
      Routine US rounds with only US investors and no European angle = EXCLUDE.
    • Israel: include strong AI, cyber, or deep tech rounds with clear relevance to European investors.
    • Do NOT apply a hard minimum size — a €2M seed in a genuinely novel European deep tech company
