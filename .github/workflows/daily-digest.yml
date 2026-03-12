@@ -25,6 +25,8 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+          FT_EMAIL: ${{ secrets.FT_EMAIL }}
+          FT_PASSWORD: ${{ secrets.FT_PASSWORD }}
           TZ: Europe/Paris
         run: python news_digest.py --once
 
