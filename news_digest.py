@@ -841,7 +841,7 @@ def main() -> None:
     _FT_SESSION = _init_ft_session()
     log.info("Digest scheduled at %s local time every day.", SEND_TIME)
 
-    schedule.every().day.at(SEND_TIME).do(run_digest)
+    job = schedule.every().day.at(SEND_TIME).do(run_digest)
 
     if "--once" in sys.argv:
         log.info("--once flag detected: running digest once and exiting.")
@@ -851,6 +851,7 @@ def main() -> None:
     if "--now" in sys.argv:
         log.info("--now flag detected: running digest immediately.")
         run_digest()
+        job.next_run += timedelta(days=1)  # prevent double-send: skip today's scheduled run
 
     log.info("Scheduler running. Press Ctrl-C to stop.")
     try:
