@@ -6,6 +6,8 @@ on:
 jobs:
   digest:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
