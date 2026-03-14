@@ -807,9 +807,21 @@ def run_digest() -> None:
     log.info("=" * 60)
     log.info("Starting daily VC digest run")
     log.info("=" * 60)
-    date_str = datetime.now().strftime("%B %d, %Y")
+
+    today = datetime.now()
+    weekday = today.weekday()  # 0=Monday … 4=Friday, 5=Saturday, 6=Sunday
+
+    if weekday in (5, 6):
+        log.info("Weekend (%s) — no digest sent. Skipping.", today.strftime("%A"))
+        return
+
+    # Monday: cover Friday + Saturday + Sunday (72 h); otherwise last 24 h
+    lookback_hours = 72 if weekday == 0 else 24
+    log.info("Lookback window: %d hours.", lookback_hours)
+
+    date_str = today.strftime("%B %d, %Y")
     try:
-        articles = fetch_articles()
+        articles = fetch_articles(lookback_hours=lookback_hours)
         # Load recent headlines so Claude can skip semantic duplicates from past 7 days
         recent_cache = _load_seen_cache()
         seen_headlines = list(recent_cache.keys())
